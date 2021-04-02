@@ -9,6 +9,7 @@ Inflearn 강의를 보며 스프링에 입문해 공부하면서 진행한, 회�
 <br/>
 
 * [새로 배운 IntelliJ 단축키](./IntelliJ_short_key.md)
+* [어노테이션](./Annotation.md)
 
 <br/>
 
@@ -73,79 +74,25 @@ Inflearn 강의를 보며 스프링에 입문해 공부하면서 진행한, 회�
 
 <br/>
 
-<br/>
+<br/>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+
+## View 환경설정
+
+> 스프링 부트에서는 static/index.html을 올려두면 Welcom page 기능을 제공한다.
+
+* static에 파일이 없으면 다음은 templates 폴더에서 찾는다.
 
 <br/>
 
 <br/>
 
-<br/>
-
-### 어노테이션
-
-#### @SpringBootApplication
-
-* 스프링이 실행되기 위한 파일이라는 의미의 어노테이션.
-* Main 메소드가 들어있는 코드, 어플리케이션을 나타낸다.
-
-#### @Component
-
-* 컴포넌트 스캐닝을 통해 자동으로 스프링 빈에 등록하기 위해서 사용하는 어노테이션이다.
-* Controller, Service, Repository 등의 내부에도 들어가있다.
-
-#### @Controller
-
-* spring container에, 해당 객체를 생성해서 스프링에 넣어두고, 관리하기 위한 어노테이션이다.
-* Controller를 통해서 외부 요청을 받아 처리한다.
-
-#### @Service
-
-* spring이 올라올 때, 해당 객체를 spring container에 등록해 관리하기 위한 어노테이션이다.
-* Service를 통해서 비스니스 로직을 만들어 수행한다.
-
-#### @Repository
-
-* 마찬가지로 해당 객체를 spring container에 등록해 관리하기 위한 어노테이션이다.
-* Repository를 통해서 데이터를 저장한다.
-
-#### @Autowired
-
-* 생성자에 붙여 spring container의 객체와 연결시키기 위한 어노테이션이다.
-* spring container에, 자동으로 컨트롤러를 등록하면서 필드로 존재하는 객체의 생성자도 호출한다.
-* 그러면 앞서 service로 등록해 spring container 안에 존재하는 객체를 가져다가 연결시켜준다.
-* 생성자가 하나일 경우, 해당 어노테이션을 생략할 수 있다고 한다!
-
-#### @Bean
-
-* 자바 코드로 스프링 빈을 직접 등록하기 위해 생성자 위에 써주는 어노테이션이다.
-* 해당 어노테이션이 있는 클래스에 대해 객체를 만들어 스프링 빈으로 등록해주는 것.
-* 그러나 Controller의 경우 자바 코드로 직접 등록하지 않고, 컴포넌트 스캔을 이용한다.
-
-#### @Test
-
-* junit에 속한 것으로, 테스트 하는 메소드라는 의미로 붙여주는 어노테이션이다.
-
-#### @AfterEach
-
-* 각 테스트 메소드가 수행된 후마다 호출되는 메소드라는 의미로 붙여주는 어노테이션이다.
-
-#### @BeforeEach
-
-* 각 테스트 메소드가 수행되기 전에 매번 호출하는 메소드라는 의미로 붙여주는 어노테이션이다.
-
-#### @Entity
-
-* JPA가 관리하는 Entity가 된다는 의미로 붙여주는 어노테이션이다.
-
-#### @Id
-
-* Primary Key로 설정한다는 의미의 어노테이션이다.
-
-#### @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-* Identity : DB가 알아서 ID를 생성해주는 전략 
+## 스프링 웹 개발 기초
 
 <br/>
+
+> * 정적 컨텐츠 : html 파일 그대로 웹 브라우저에 전달해주는 방식
+> * MVC와 템플릿 엔진 : 서버에서 변형해서 전달해주는 방식
+> * API : Json이라는 데이터 구조 포멧으로 클라이언트에게 데이터를 전달해주는 방식
 
 <br/>
 
@@ -160,10 +107,19 @@ Inflearn 강의를 보며 스프링에 입문해 공부하면서 진행한, 회�
 
 #### 동작 환경
 
-* 웹 브라우저가 요청을 하면, 스프링 컨테이너에서는 우선적으로 컨트롤러를 찾는다.
-* 컨트롤러에서 리턴 값으로 문자를 반환하면 viewResolver가 화면을 찾아 처리한다.
+* 웹 브라우저가 요청을 하면, 자체적으로 내장하고 있는 톰켓 서버가 받아서 넘겨준다.
+* 스프링 컨테이너에서는 우선적으로 컨트롤러를 찾는다.
+  * 컨트롤러에 GetMapping 된 hello URL에 매칭되어 해당 메소드가 실행된다.
+  * 매개변수는 스프링이 Model로 만들어서 넘겨준다.
+* 컨트롤러에서 리턴 값으로 hello를 반환하면 viewResolver가 화면을 찾아서 처리한다.
   * 스프링 부트 템플릿엔진 기본 viewName 매핑
   * resources:templates/ + {ViewName} + .html
+    * 쉽게 말해, templates 폴더 아래에 있는 반환된 ViewName.html 파일이 열린다.
+
+<br/>
+
+* Controller라는 어노테이션이 있으면, 스프링이 뜰 때 객체를 생성해서 관리한다.
+* 이를 Bean을 관리한다고 표현하는데, 콩 처럼 생겨서...
 
 ![image-20201229174609052](./images/image-20201229174609052.png)
 
@@ -171,8 +127,13 @@ Inflearn 강의를 보며 스프링에 입문해 공부하면서 진행한, 회�
 
 #### 정적 컨텐츠 이미지
 
-* 웹 브라우저가  요청을 하면 우선적으로 컨트롤러를 찾는다.
-* 하지만 만약 매칭되는 컨트롤러가 없으면 바로 요청한 html 페이지를 반환한다.
+> 요청한 경로에 해당하는 html 파일을 그대로 직접 반환하는 방식
+
+<br/>
+
+* 웹 브라우저가 localhost:8080/hello.static.html을 달라고 요청을 한다.
+* 그럼 스프링은 우선적으로 컨트롤러가 있는지 찾는다.
+* 만약 매칭되는 컨트롤러가 없으면 내부에 resources - static 위치에 요청한 이름의 html 파일이 있는지 찾아 직접 그 페이지를 반환한다.
 * 이 html 페이지는 정적 컨텐츠이며, 기본 경로로 **/static** 또는 **/public**, **/resources** 등을 우선적으로 찾는다.
 * [스프링 부트 정적 컨텐츠 기능](https://docs.spring.io/spring-boot/docs/2.3.1.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-static-content) - spring.io reference
 
@@ -182,34 +143,85 @@ Inflearn 강의를 보며 스프링에 입문해 공부하면서 진행한, 회�
 
 #### MVC, 템플릿 엔진
 
-* Controller라는 어노테이션이 있으면, 스프링이 뜰 때 객체를 생성해서 관리한다.
-* 이를 Bean을 관리한다고 표현하는데, 콩 처럼 생겨서...
-* 앞서 말했듯, 이 컨트롤러를 가장 우선적으로 찾아서 이를 통해 기능들을 수행하는 것이다.
-* 컨트롤러는 뷰 리졸버를 찾아 요청을 전달한다.
-* 템플릿 엔진을 이용하기 때문에, viewResolver가 해당 요청 파일을 **/templates** 경로에서 찾아 반환한다.
+> 넘겨준 데이터를 토대로 템플릿을 이용해 렌더링 한 html 파일을 반환하는 방식이다.
+
+<br/>
+
+* 웹 브라우저에서 localhost:8080/hello-mvc?name=spring 를 넘기면, 내장 톰켓 서버를 거친다.
+  * get 방식으로 위와 같이 key는 name, value는 "spring" 으로 호출한다. 
+  * 스프링은 이 값들을 모델로 넣어 전달한다.
+* 톰켓 서버는 이 요청이 왔다고 스프링에게 던진다.
+* 그럼 스프링은 helloController라는 컨트롤러에 매핑된 메소드를 호출해준다.
+* return 값으로 hello-template을 반환하기 전에, model의 값을 스프링에게 전달한다.
+* 이 때 스프링은 **viewResolver**에게 전달해서 해당 요청 파일을 **/templates** 경로에서 찾아 템플릿 엔진에게 처리해달라고 넘긴다.
+* 그러면 Thymeleaf 템플릿 엔진은 렌더링을 해서 **변환한 html을** 웹 브라우저에게 반환한다.
 
 ![image-20201229172814669](./images/image-20201229172814669.png)
 
 <br/>
 
-#### @ResponseBody
+#### API 방식 - @ResponseBody
 
-* @ResponseBody 를 사용하면 뷰 리졸버(viewResolver)를 사용하지 않는다.
-* 대신에 HttpMessageConverter 가 동작한다.
-  * HTTP의 BODY에 문자 내용을 직접 반환한다. (HTML BODY TAG를 말하는 것이 아님)
-    * "\<HTML> .. " 등 html 태그를 모두 문자열로 반환해서 html 형식으로 출력할 수도 있지만, 굳이..
-    * 반환하는 내용이 객체이면 **Json** 형식으로, 문자열이면 **String** 형식으로 컨버터를 호출해 처리한다.
+> Http의 head와 body중, body 부분의 내용을 직접 넣어주는 방식이다.
+
+* 이 방식은, HTTP의 BODY에 문자 내용을 직접 반환한다. (HTML BODY TAG를 말하는 것이 아님)
+* 따라서 "\<HTML> .. " 등 html 태그를 모두 문자열로 반환해서 출력할 수도 있지만, 굳이...
+
+<br/>
+
+* **@ResponseBody**를 사용하면 viewResolver를 사용하지 않는다.
+* 대신에 **HttpMessageConverter** 가 동작한다.
+* 반환하는 내용이 객체이면 **Json** 형식, 문자열이면 **String** 형식으로 컨버터를 호출해 처리한다.
   * 기본 **문자**처리 : **String**HttpMessageConverter
-  * 기본 객체처리: Mapping**Jackson**2HttpMessageConverter
-  * byte 처리 등등 기타 여러 HttpMessageConverter가 기본으로 등록되어 있음
+  * 기본 **객체**처리: Mapping**Jackson**2HttpMessageConverter
+  * (byte 처리 등등 기타 여러 HttpMessageConverter가 기본으로 등록되어 있음)
 
 ![image-20201229174414159](./images/image-20201229174414159.png)
 
 <br/>
 
+### 개발 방식 참고
+
+* Java Bean 표준 방식
+* Property 접근 방식
+
 <br/>
 
-### Test case 작성
+<br/>
+
+## 회원 관리 예제 - 백엔드 개발
+
+<br/>
+
+### Optional\<T\>
+
+* Java 8에 들어간 기능
+* 메소드를 호출해 반환하는 값이 NULL 인 경우가 생길 수 있다.
+* NULL 값인 경우에 대해 예외적으로 처리하는 것 역시 개발에서 중요한 이슈 중 하나!
+* 요즘에는 그 NULL 값을 그대로 반환하는 대신에 이 Optional로 감싸서 반환하는 방법을 선호한다.
+
+<br/>
+
+#### Optional.ofNullable()
+
+* 반환 값이 Null이어도 감싸서 반환할 수 있다.
+* 그럼 클라이언트 측에서 이를 감지하여 NULL 값에 대한 처리를 해줄 수 있다.
+
+
+
+<br/>
+
+<br/>
+
+<br/>
+
+<br/>
+
+<br/>
+
+<br/>
+
+## Test case 작성
 
 * 개발한 기능을 테스트 해볼 때 사용한다.
 * main메소드나 controller 등을 통해 실행하는 방법은 오래걸리고, 반복 실행이 어렵다.
