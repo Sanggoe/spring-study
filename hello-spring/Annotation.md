@@ -61,3 +61,16 @@
 #### @GeneratedValue(strategy = GenerationType.IDENTITY)
 
 * Identity : DB가 알아서 ID를 생성해주는 전략 
+
+#### @GetMapping(path)
+
+* 해당 경로로 get 방식으로 요청이 오면 수행할 메소드를 매핑하는 어노테이션이다.
+
+#### @PostMapping(path)
+
+* 해당 경로로 Post 방식으로 요청이 오면 수행할 메소드를 매핑하는 어노테이션이다.
+
+#### @Target
+
+#### @Retention
+
