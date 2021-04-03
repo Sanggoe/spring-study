@@ -2,6 +2,22 @@
 
 <br/>
 
+#### 요약
+
+* 스프링의 핵심은 IoC, AOP, PSA 이다.
+* IoC에서 의존성 주입은, 필요한 객체를 외부에서 스프링이 넣어주는 방식이다. 
+  * 테스트도 쉽고, 코드 작성이 용이하다.
+* AOP는 사방으로 흩어져서 작성된 코드를 한곳으로 모으는 코딩 기법이자 기술이다.
+  * logging이나, 트랜잭션, 성능측정, 인증, 권한 확인 등...
+  * 그 중 spring은 proxy 라는 패턴을 이용해서 구현한다.
+  * 또는 byte code를 변경해서 구현하기도...
+* 대부분의 라이브러리는 전부 PSA이고, Spring이 제공하는 API 대부분이 PSA이다.
+  * 조금 더 유연하게 대처할 수 있는 추상화 된 좋은 인터페이스를 제공하는 것이다.
+
+<br/>
+
+<br/>
+
 ## IoC (Inversion of Control)
 
 > 제어의 역전
@@ -208,15 +224,96 @@ class AAAABBBB {
 
 ### AOP 적용 예제
 
-> @LogExecution Time 으로 메소드 처리 시간 로깅하기
+* 예제 코드에서는 @Transactional 어노테이션이 AOP에 해당하는 코드들이다.
+* 해당 메소드의 트랜잭션 모두 try catch 처럼 묶여있다고 한다.
+* 문제가 발생할 경우 수행되는 catch 에서의 트랜잭션이 위에서 살펴본 AAAA, BBBB 형식처럼 동일하게 둘러쌓여 있고, 따라서 기본적으로 제공되는 메소드들은 트랜잭션이 다 적용되어 있다고...
+  * 솔직히 아직은 무슨말인지 잘 모르겠다 (?)
+
+<br/>
+
+#### 어떤 메소드가 실행이 되었을 때, 그 시간을 로그로 남기는 예제
+
+> @LogExecutionTime 으로 메소드 처리 시간 로깅하기
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LogExecutionTime {
+}
+```
+
+* 어디에 적용할지 표시해두는 용도. 메소드를 타겟으로 한다.
+* 적용 시기에 대한 정책은 RUNTIME 까지 하도록 해야 스프링이 수행되는 동안 로그가 남는다고 한다.
 
 <br/>
 
 <br/>
 
-<br/>
+## PSA(Portable Service Abstraction) 소개
+
+> 잘 만든 인터페이스
+>
+> 이식 가능한, 바꿔끼기 좋은 서비스 추상화
 
 <br/>
 
+* 내가 작성한 코드가 확장성이 좋지 못한 코드이거나, 기술에 특화되어 있는 코드일 경우
+  * 테스트 만들기도 어렵다.
+  * 어떤 기술이 바꿀 때마다 내 코드가 바뀐다.
+* 나의 코드가 잘 만든 인터페이스일 경우라면
+  * 테스트하기도 좋다.
+  * 다른걸로 바꿔 끼기도 좋다.
+  * 해당 인터페이스 아래에 있는 기술 자체를 바꾸더라도, 내 코드가 바뀌지 않는다.
+    * JDBC - Hibernate - JPA 기술이 바뀌어도!!
+
 <br/>
 
+#### Spring은 어떤 PSA를 제공하는가?
+
+* **스프링이 제공하는 대부분의 API가 전부 다 PSA이다.**
+* 다 추상화 된 엄청나게 호환성 좋은... 다른 기술들이 들어와도 기존 코드가 바뀌지 않는 90%가 추상화이다.
+* **추상화된 특정 인터페이스만 잘 알면, 뒷단에 무슨 기술이 있든지 상관 없이 잘 쓸 수 있는 것!**
+* 세상에 날고긴다는 짱짱 개발자분들께서 스프링을 만드셨는데 당연하지...
+
+<br/>
+
+### 스프링 트랜잭션
+
+> PlatformTransactionManager
+
+<br/>
+
+* @Transactional
+* 트랜잭션을 처리하는 Aspect는, PlatformTransactionManager 이라는 인터페이스를 사용해서 코딩한다. 
+* 그렇기 때문에 Bean이 바뀌더라도 Transaction Annotation을 처리하는 코드는 바뀌지 않는다.
+  * JpaTransactionManager | DatasourceTransactionManager | Hibernate TransactionManager
+* 이것이 추상화!
+
+<br/>
+
+### 스프링 캐시
+
+> CacheManager
+
+<br/>
+
+* @Cacheable | @ChacheEvict | ...
+* CacheManager 라는 인터페이스를 사용해야 한다.
+* 그럼 마찬가지로 Bean이 바뀌어도 처리하는 코드가 바뀔 일은 없다.
+* JCacheManager | ConcurrentMapCacheManager | EhCacheCacheManager | ...
+
+<br/>
+
+### 스프링 웹 MVC
+
+> @Controller와 @RequestMapping
+
+<br/>
+
+* 마찬가지로 우리 코드는 추상화 되어있기 때문에 하위 어떤 기술을 사용하더라도 변경되지 않는다.
+* @Controller | @ReuqestMapping | ...
+* 의존성을 확인해 보아야 어떤 것을 쓰는지 알 수 있을 것이다.
+  * Servlet | Reactive
+* 톰캣, 제티, 네티, 언더토우
+
+<br/>
