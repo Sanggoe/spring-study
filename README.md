@@ -1,6 +1,6 @@
 # spring-study
 
-* Inflearn - spring 강의를 수강하며 공부한 내용들과 코드들을 정리하는 repository 공간
+Inflearn - spring 강의를 수강하며 공부한 내용들과 코드들을 정리하는 repository 공간
 
 <br/>
 
