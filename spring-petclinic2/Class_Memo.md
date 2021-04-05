@@ -207,6 +207,12 @@ public String bean() {
 
 <br/>
 
+* 싱글톤 스코프를 직접 구현하려면 그 과정이 굉장히 번거롭고 조심스러운 일이다.
+* 그런 일을 IoC 컨테이너를 사용하면 손쉽게 등록하고 편하게 사용할 수 있다.
+* 이것 역시 IoC 컨테이너를 사용하는 이유 중 하나!
+
+<br/>
+
 #### 참고
 
 * [application context에 대한 설명 - github](https://github.com/spring-guides/understanding/tree/master/application-context)
@@ -226,26 +232,34 @@ public String bean() {
 * 다른 말로, Application Context가 관리하는 모든 객체가 Bean이다.
 * 스프링 IoC 컨테이너 안에서 관리되는 모든 객체가 Bean이다.
   * IntelliJ IDE에서는, 좌측에 녹색 콩 모양이 떠있으면 Bean으로 등록되어 관리되는 클래스들이다.
+* IoC 컨테이너에 등록되지 않은, new 생성자를 이용해 임의로 만든 객체는 Bean이 아니다.
 
 <br/>
 
-#### Bean으로 등록하는 방법
+#### Bean으로 등록하는 방법 1 - Component Scan
 
-* Component Scanning
-  * 컴포넌트 스캔은 Annotation을 처리하는 역할을 한다.
-  * Application이 존재하는 패키지 하위 모든 클래스들을 돌면서 @Component 어노테이션이 달린 것들을 찾아 Bean으로 등록해준다.
-  * @Component에 해당하는 어노테이션들 예시
-    * @Repository
-    * @Service
+> @Component가 달린 클래스의 인스턴스를 Bean으로 알아서 등록해주는 Annotation processor
+
+* Annotation 프로세서중에, 스프링 IoC 컨테이너를 만들고 그 안에 Bean을 등록할 때 사용하는 인터페이스들이 있는데, 이걸 Lifecycle callback 이라고 부른다. 
+* 여러가지 Lifecycle callback 중에, @Component라는 어노테이션들을 찾아서 그 클래스의 인스턴스를 만들어 Bean으로 등록해주는 복잡한 기능을 하는 어노테이션 처리기가 등록되어 있다.
+* 그게 바로 @ComponentScan 이다.
+  * 일반적으로 Application 클래스에 달린 @SpringBootApplication에 포함되어 있다.
+  * @ComponentScan이 달린 파일 기준으로 하위 경로의 모든 클래스들을 돌면서 @Component가 달린 것들을 찾아 Bean으로 등록해준다.
+  * @Component가 포함되는 어노테이션들의 예시는 다음과 같다.
     * @Controller
+    * @Service
+    * @Repository
+      * Repository는 JPA라는 기술에 따라서, 특정 인터페이스를 상속 받음으로서 
 
 <br/>
 
-* 직접 일일이 XML이나 자바 설정 파일에 등록
+#### Bean으로 등록하는 방법 2 - XML, 설정파일
 
-  * @Bean 어노테이션을 이용해 직접 정의할 수 있다.
+> @Configuration 적용 파일에 @Bean 어노테이션으로 직접 등록하는 방법
 
-  * 단, @Configuration 어노테이션이 있는 파일에 정의해야 한다
+* @Configuration 어노테이션이 적용된 -Config라는 파일을 정의한다.
+
+* 등록하고자 하는 클래스의 생성자를 만들어 new 를 이용해 해당 객체를 반환하고, 해당 메소드 상단에 @Bean 어노테이션을 추가해서 직접 IoC 컨테이너에 Bean으로 등록할 수 있다.
 
   * ```java
     @SpringBootApplication(proxyBeanMethods = false)
