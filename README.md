@@ -14,6 +14,7 @@ Inflearn - spring 강의를 수강하며 공부한 내용들과 코드들을 정
 * [스프링 프레임워크 입문 (백기선)](https://www.inflearn.com/course/spring/dashboard)
 
 * [개정판 - 예제로 배우는 스프링 입문 (백기선)](https://www.inflearn.com/course/spring_revised_edition/dashboard)
-  * [Study Contents Doc.](./spring-petclinic/Class_Memo.md)
+  * [Study Contents Doc.](./spring-petclinic2/Class_Memo.md)
 
 <br/>
+
