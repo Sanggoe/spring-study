@@ -18,9 +18,73 @@
 
 <br/>
 
+## 프로젝트 준비
+
+* JDK 버전: 11 이상
+
+* 소스 코드: https://github.com/spring-projects/spring-petclinic 
+
+* 실행 방법
+
+  > ./mvnw package
+
+  * package 라는 빌드를 수행하면, 프로젝트를 빌드 해서 패키지 파일을 만든다.
+  * 패키징이라는 옵션으로 타입을 지정해주지 않으면 default 프로젝트 타입은 jar 파일
+
+  > java -jar target/*jar
+
+  * 현재 디렉토리 하위에서 jar 파일을 찾아 실행하는 명령어
+
+  > IDE에서 메인 애플리케이션 실행
+
+  * Spring boot 기반 프로젝트이기 때문에, Application java 파일을 run 하는 방법으로 가능
+
+<br/>
+
+<br/>
+
+## 프로젝트 살펴보기
+
+<br/>
+
+#### 프로젝트 Flow가 어떻게 될까?
+
+* 예시로, home에서 새로 고침을 한다.
+* 그러면 owners/find 라는 요청이 오면, spring의 디스패처 서블릿으로 가게 된다.
+* Dispacher Servlet은 ownerController에 있는 매핑된 메소드를 호출하게 된다.
+
+<br/>
+
+#### 기존 코드를 조금 고쳐보기
+
+* LastName이 아닌 FirstName으로 검색하도록
+  * View 변경
+  * 코드 조금 변경
+* 앞에서부터 일치하는게 아닌 해당 키워드가 들어있는 걸 검색하도록
+  * 쿼리 일부 변경
+* Owner에 age 항목 추가
+  * Model 변경
+  * DB Schema 및 Data 변경
+  * View 변경
+
+<br/>
+
+#### Issue
+
+* SQL column 문제
+  * DB 스키마 및 데이터 파일을 수정해주어 해결했다.
+* No validator could be found for constraint 'java.lang.Integer'
+  * @NotEmpty 어노테이션을 문자열이 아닌 Integer 형에 써서 그런 것 아니었을까 싶다.
+* View 에서 추가한 age의 default value="0" 으로 계속 나오는 문제
+  * Owner의 age 필드를 int형으로 선언해줘서 그랬던 것 같다. Integer로 수정하니 해결
+
+<br/>
+
+<br/>
+
 ## IoC (Inversion of Control)
 
-> 제어의 역전
+> 제어권이 역전된 것
 
 <br/>
 
@@ -33,10 +97,12 @@ class OwnerController {
 ```
 
 * 자기가 사용할 객체는 new 생성자로 알아서 만들어 쓴다!
+* OwnerReopsitory를 OwnerController 본인이 사용하기 위해 직접 만드는 것.
+* 의존성에 대한 제어권을 스스로가 가지고 있다.
 
 <br/>
 
-#### IoC
+#### IoC, 제어권의 역전
 
 ```java
 class OwnerController {
@@ -58,7 +124,15 @@ class OwnerControllerTest {
 ```
 
 * 자기가 사용할 객체는 타입만 맞으면 외부에서 알아서 넣어준다.
+* 위의 경우는 OwnerController에서 사용할 OwnerRepository를 외부에서 넣어준다.
+* 이로써 의존성을 관리해주는 것이 자신이 아니라 다른 누군가가 해주는 것으로 바뀌었다.
 * 이 개념이 바로 의존성 주입 (Dependency Injection) 이다.
+
+<br/>
+
+* 이렇게 스프링은 Bean이라는 객체를 만들어 객체로 등록을 해준다.
+* 등록된 객체들은 Spring Container 안에 있으니까 Bean 이라고 부르는 것.
+* 이 Bean들의 의존성을 관리해준다. 즉, 필요한 의존성을 서로 주입 해주는 역할을 수행하는 것이다.
 
 <br/>
 
@@ -67,7 +141,7 @@ class OwnerControllerTest {
 > Application Context (BeanFactory) 라고도 한다.
 
 * 얘가 Bean들을 만들고, Bean들의 의존성을 엮어주며, 제공한다.
-* 스프링이 ~을 해준다. 라고 말할 때 그 '스프링'  주체 역할을 해주는게 이 녀석인 듯 하다.
+* 스프링이 ~을 해준다. 라고 말할 때 그 '스프링'  주체 역할을 해주는게 이 녀석.
 * 얘는 우리가 직접 볼 일도, 직접 쓸 일도 없을것이다...
 * 굳이 쓰려면 @Autowired를 이용해 Bean에 주입을 받아서 쓸 수는 있다.
 
