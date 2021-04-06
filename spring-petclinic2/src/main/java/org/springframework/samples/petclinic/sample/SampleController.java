@@ -5,14 +5,13 @@ import org.springframework.stereotype.Controller;
 
 public class SampleController {
 
-	/*SampleRepository sampleReository;
+	/*
+	 * SampleRepository sampleReository;
+	 *
+	 * @Autowired public SampleController(SampleRepository sampleReository) {
+	 * this.sampleReository = sampleReository; }
+	 *
+	 * public void doSomthing() { sampleReository.save(); }
+	 */
 
-	@Autowired
-	public SampleController(SampleRepository sampleReository) {
-		this.sampleReository = sampleReository;
-	}
-
-	public void doSomthing() {
-		sampleReository.save();
-	}*/
 }

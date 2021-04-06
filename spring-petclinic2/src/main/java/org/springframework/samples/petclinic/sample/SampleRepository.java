@@ -8,4 +8,5 @@ public class SampleRepository {
 	public void save() {
 
 	}
+
 }
