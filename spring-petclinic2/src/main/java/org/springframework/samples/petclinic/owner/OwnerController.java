@@ -16,11 +16,9 @@
 package org.springframework.samples.petclinic.owner;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StopWatch;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -43,19 +41,11 @@ class OwnerController {
 
 	private final OwnerRepository owners;
 	private final VisitRepository visits;
-	@Autowired
-	private PetRepository petRepository;
 
 	@Autowired
-	public void setPetRepository(PetRepository petRepository) {
-		this.petRepository = petRepository;
-	}
-
-	@Autowired
-	public OwnerController(OwnerRepository owners, VisitRepository visits, PetRepository petRepository) {
+	public OwnerController(OwnerRepository owners, VisitRepository visits) {
 		this.owners = owners;
 		this.visits = visits;
-		this.petRepository = petRepository;
 	}
 
 	@InitBinder
@@ -63,17 +53,11 @@ class OwnerController {
 		dataBinder.setDisallowedFields("id");
 	}
 
-	@GetMapping("/owners/new")
 	@LogExecutionTime
+	@GetMapping("/owners/new")
 	public String initCreationForm(Map<String, Object> model) {
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-
 		Owner owner = new Owner();
 		model.put("owner", owner);
-
-		stopWatch.stop();
-		System.out.println(stopWatch.prettyPrint());
 
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
@@ -81,21 +65,11 @@ class OwnerController {
 	@PostMapping("/owners/new")
 	@LogExecutionTime
 	public String processCreationForm(@Valid Owner owner, BindingResult result) {
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-
 		if (result.hasErrors()) {
-			stopWatch.stop();
-			System.out.println(stopWatch.prettyPrint());
-
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
 		else {
 			this.owners.save(owner);
-
-			stopWatch.stop();
-			System.out.println(stopWatch.prettyPrint());
-
 			return "redirect:/owners/" + owner.getId();
 		}
 	}
@@ -103,13 +77,7 @@ class OwnerController {
 	@GetMapping("/owners/find")
 	@LogExecutionTime
 	public String initFindForm(Map<String, Object> model) {
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-
 		model.put("owner", new Owner());
-
-		stopWatch.stop();
-		System.out.println(stopWatch.prettyPrint());
 		return "owners/findOwners";
 	}
 

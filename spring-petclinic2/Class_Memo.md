@@ -599,7 +599,7 @@ class StoreTest {
 
 <br/>
 
-#### AOP 적용 실습
+### AOP 적용 실습
 
 > Spring AOP를 사용해 StopWatch로 성능 측정하는 방법
 >
@@ -659,6 +659,8 @@ public class LogAspect {
 
 <br/>
 
+<br/>
+
 ## PSA(Portable Service Abstraction) 소개
 
 > 잘 만든 인터페이스
@@ -666,6 +668,8 @@ public class LogAspect {
 > 이식 가능한, 바꿔끼기 좋은 서비스 추상화
 
 <br/>
+
+### 서비스 추상화 (Service Abstraction)
 
 * 내가 작성한 코드가 확장성이 좋지 못한 코드이거나, 기술에 특화되어 있는 코드일 경우
   * 테스트 만들기도 어렵다.
@@ -675,6 +679,7 @@ public class LogAspect {
   * 다른걸로 바꿔 끼기도 좋다.
   * 해당 인터페이스 아래에 있는 기술 자체를 바꾸더라도, 내 코드가 바뀌지 않는다.
     * JDBC - Hibernate - JPA 기술이 바뀌어도!!
+* [Service Abstraction](https://en.wikipedia.org/wiki/Service_abstraction)
 
 <br/>
 
@@ -687,17 +692,116 @@ public class LogAspect {
 
 <br/>
 
+#### PSA의 추상화 계층 기술 예시
+
+* 웹 MVC
+* 스프링 트랜잭션
+* 캐시
+
+<br/>
+
+### 스프링 웹 MVC
+
+> Model, View, Controller
+
+<br/>
+
+* @Controller 라는 어노테이션을 사용하면, 요청을 매핑할 수 있는 컨트롤러 역할을 수행하는 클래스가 된다.
+
+* 이 클래스 안에 @GetMapping이나 @PostMapping, @RequestMapping 등으로 요청을 매핑한다.
+
+  * ```java
+    @Controller
+    class OwnerController {
+        ...
+    	@GetMapping("/owners/new")
+    	public String initCreationForm(Map<String, Object> model) {
+    	   Owner owner = new Owner();
+    	   model.put("owner", owner);
+    	
+    	   return "owners/createOrUpdateOwnerForm";
+    	}
+        ...
+    }
+    ```
+
+  * 해당 URL에 해당하는 요청이 들어왔을 때, 그 요청을 메소드가 처리하도록 매핑하는 것이다.
+
+  * Mapping 어노테이션들은 내부적으로 요청과 관련 있는 정보에 대해 여러 가지 속성들을 가지고 있다.
+
+  * 헤더 정보, 경로, 또는 파라미터들이 있을 때 그걸 처리하는 컨트롤러가 되는 것이다.
+
+* V는 View로, 매핑된 메소드가 View 파일 경로를 반환하는 것을 볼 수 있다.
+
+  * ![image-20210406182315909](./images/image-20210406182315909.png)
+  * 얘는 src - main - resources - templates 라는 디렉토리에서 경로를 따라가면 html 파일이 존재한다.
+  * 예제 코드에서의 파일은, Thymeleaf 라는 템플릿을 이용해 만들어진 View이다.
+
+* M은 Model로, 방금 View에서 사용되는 객체를 예시로 들 수 있다.
+
+  * ```html
+    <form th:object="${owner}" class="form-horizontal" id="add-owner-form" method="post">
+    ```
+
+  * 위와 같이, 이 안에서 사용하는 owner라는 객체는 Controller 에서도 반환하는, Model에다 담고있는 객체가 바로 모델에 해당한다.
+
+<br/>
+
+#### 왜 추상화 계층인가?
+
+* 예전에는 Servlet을 개발할 때 httpServlet 이라는 클래스를 직접 구현해서, Get / Post 방식에 따라서 처리하는 메소드들을 매핑하고.. 지금보다 더 복잡하게  개발해야 했었다. 하지만 지금은 GetMapping 등을 이용해 간단하게 매핑하여 구현할 수 있는 등 편의성을 제공해 주기 위한 용도로도 서비스 추상화를 만든다.
+* 또 Portable이라는 단어가 붙었는데, 우리는 스프링이 제공해주는 추상화 인터페이스 기술을 사용하기 때문에, 하위에 어떤 기술을 사용하더라도 동작할 수 있다.
+  * 뒷단에 있는 여러 기술들을 기반으로 Servlet으로, Reactive로.. 그리고 톰캣, 제티, 네티, 언더토우..
+  * 기존 코드를 변경하지 않고도 사용할 수 있는 것이다.
+
+<br/>
+
 ### 스프링 트랜잭션
 
 > PlatformTransactionManager
 
 <br/>
 
-* @Transactional
-* 트랜잭션을 처리하는 Aspect는, PlatformTransactionManager 이라는 인터페이스를 사용해서 코딩한다. 
-* 그렇기 때문에 Bean이 바뀌더라도 Transaction Annotation을 처리하는 코드는 바뀌지 않는다.
-  * JpaTransactionManager | DatasourceTransactionManager | Hibernate TransactionManager
-* 이것이 추상화!
+#### 트랜잭션이란?
+
+* DB에서 데이터를 주고받는다고 가정 했을 때
+  * 데이터의 데이터를 넣을 때 A - B - C 모두 되어야 하나의 작업으로 완료하는 경우
+  * A - B - C 중 하나라도 잘못되면, 그 작업을 모두 취소하는 경우에 대해 트랜잭션이라고 부를 수 있다.
+  * 위와 같이 트랜잭션을 설명하기 위한 내용으로 All or Nothing이라는 속성이 있다.
+  * 되려면 다 같이 되거나, 하나라도 잘못되면 다같이 취소되어야 한다.
+
+<br/>
+
+#### All or Nothing 속성
+
+* 트랜잭션을 설명하기 위한 속성이다.
+  * 쇼핑몰에서 옷을 살 때 계좌에서 돈이 빠져나간다.
+  * 물건이 주문된다.
+  * 근데, 만약 돈을 지불 했는데 물건이 없다면 돈을 다시 돌려주어야 한다.
+  * 그대로 돈을 먹고 물건이 없다고 하면 안되겠지...
+  * 이런게 하나의 트랜잭션이다.
+
+<br/>
+
+#### jdbc transaction example
+
+![image-20210406191649579](./images/image-20210406191649579.png)
+
+* 위의 경우가 대표적인 트랜잭션 처리의 예시이다.
+  * 먼저 dbConnection.setAutoCommit(false); 를 통해 자동 커밋을 중지한다.
+  * 그 다음 SQL문을 수행함으로서 기능을 수행하고
+  * 만약 오류 없이 수행 된다면 dbConnection.commit(); 으로 커밋을 수행해준다.
+    * 하지만 만약 중간에 오류가 하나라도 난다면 Exception으로 처리되고, db를 다시 rollback() 시킨다.
+
+<br/>
+
+* low level 수준으로 이렇게 이런식으로 트랜잭션 처리를 해야한다.
+* 하지만 스프링이 제공해주는 추상화 계층 레벨은, @Transactional 어노테이션이다.
+* 얘만 붙이면 해당 메소드는 트랜잭션 처리가 되기 때문에, 우리가 명시적으로 코딩해주지 않아도 된다.
+* 이것도 역시 여러 가지 기술들로 바꿔 쓸 수 있는 Portable Service Abstraction이다.
+  * JpaTransactionManager | DatasourceTransactionManager | Hibernate TransactionManager 등...
+  * 트랜잭션을 처리하는 Aspect는, PlatformTransactionManager 이라는 인터페이스를 사용해서 코딩한다. 
+  * 그렇기 때문에 Bean이 바뀌더라도 Transaction Annotation을 처리하는 코드는 바뀌지 않는다.
 
 <br/>
 
@@ -712,18 +816,8 @@ public class LogAspect {
 * 그럼 마찬가지로 Bean이 바뀌어도 처리하는 코드가 바뀔 일은 없다.
 * JCacheManager | ConcurrentMapCacheManager | EhCacheCacheManager | ...
 
-<br/>
-
-### 스프링 웹 MVC
-
-> @Controller와 @RequestMapping
+얘까지는 모르겠다. 나중에 깊이 들어가면 공부하자...
 
 <br/>
 
-* 마찬가지로 우리 코드는 추상화 되어있기 때문에 하위 어떤 기술을 사용하더라도 변경되지 않는다.
-* @Controller | @ReuqestMapping | ...
-* 의존성을 확인해 보아야 어떤 것을 쓰는지 알 수 있을 것이다.
-  * Servlet | Reactive
-* 톰캣, 제티, 네티, 언더토우
-
-<br/>
+* 아무튼 이런 서비스 추상화 덕분에 우리의 코드는 확장성이 좋게, 기술이 바뀌어도 호환성있는 코드를 잘 만들 수 있는 것이다. 스프링 너무 짱짱맨...
