@@ -336,6 +336,7 @@ Inflearn 강의를 보며 스프링에 입문해 공부하면서 진행한, 회�
 * 하지만 @Autowired만 해주면 등록된 스프링 빈을 찾을 수 없다는 에러가 뜰 것이다.
 * 이를 위해 스프링 빈으로 등록해주어야 한다.
   * Bean이 되는 클래스에 **생성자가 하나만 있고**, 생성자의 **매개변수 Type이 빈으로 등록되어 있다면** @Autowired가 없더라도 그 **Bean을 주입해준다.**
+  * 즉, @Autowired 생략 가능
 
 <br/>
 
@@ -730,14 +731,70 @@ public Member save(Member member) {
 * 스프링 JdbcTemplate과 **MyBatis** 같은 라이브러리는 JDBC API에서 본 **반복 코드를 대부분 제거**해준다. 
 * 하지만 SQL은 직접 작성해야 한다.
 
-* JdbcTemplate은 injection을 받을 수 없어서, Data source를 받아서 넣어준다.
-* 그리고 생성자가 딱 하나만 있으면, 스프링 빈으로 등록될 때 @Autowired를 생략할 수 있다.
+<br/>
+
+```java
+private final JdbcTemplate jdbcTemplate;
+
+@Autowired
+public JdbcTemplateMemberRepository(DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
+}
+```
+
+* JdbcTemplate은 injection 받을 수 없어서, Data source를 주입 받아서 넣어준다.
 
 <br/>
 
-#### Templete Method Pattern
+```java
+@Override
+public Optional<Member> findById(Long id) {
+    List<Member> result = jdbcTemplate.query("select * from member where id = ?", memberRowMapper());
+    return result.stream().findAny();
+}
+```
 
-* 나중에 찾아보고 공부해보자. 디자인 패턴
+* connection 받아오고 statment 받아오고 쿼리 날리고.. close 하고... 하던 기존 순수 jdbc 코드에 비하면...
+* 같은 기능을 수행하지만, 단 두 줄만에 끝난다.
+* 물론 그 순수 jdbc에서 수행하는 기능을 내부적으로 내가 신경쓰지 않아도 알아서 수행되는 것이다.
+
+<br/>
+
+```java
+private RowMapper<Member> memberRowMapper() {
+    return (rs, rowNum) -> {
+        Member member = new Member();
+        member.setId(rs.getLong("id"));
+        member.setName(rs.getString("name"));
+        return member;
+    };
+}
+```
+
+* 매핑된 memberRowMapper 메소드이다.
+* 쿼리문의 결과값에 대한 처리를 해주는 메소드로, 데이터를 객체로 만들어서 반환한다.
+
+<br/>
+
+* Templete Method Pattern
+  * 나중에 찾아보고 공부해보자. 이게 적용이 많이 된 템플릿이라서 jdbc templete 이라고 한다.
+
+<br/>
+
+```java
+SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+jdbcInsert.withTableName("member").usingGeneratedKeyColumns("id");
+
+Map<String, Object> parameters = new HashMap<>();
+parameters.put("name", member.getName());
+```
+
+* 템플릿은, 위와 같이 member, id, name 등을 주면 알아서 SQL문을 만들어준다.
+* 되게 편리하게 제공하는 라이브러리. 편하다 라고만 알고 넘어가자. 기능 설명하려면 또 한 세월...
+
+<br/>
+
+<br/>
 
 <br/>
 
