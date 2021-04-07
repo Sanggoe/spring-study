@@ -725,13 +725,15 @@ public Member save(Member member) {
 
 <br/>
 
-### 스프링 JdbcTemplete
+### 스프링 JdbcTemplate
 
 * 순수 Jdbc와 동일한 환경설정을 하면 된다.
 * 스프링 JdbcTemplate과 **MyBatis** 같은 라이브러리는 JDBC API에서 본 **반복 코드를 대부분 제거**해준다. 
 * 하지만 SQL은 직접 작성해야 한다.
 
 <br/>
+
+#### JdbcTemplate 리포지토리 구현
 
 ```java
 private final JdbcTemplate jdbcTemplate;
@@ -776,8 +778,8 @@ private RowMapper<Member> memberRowMapper() {
 
 <br/>
 
-* Templete Method Pattern
-  * 나중에 찾아보고 공부해보자. 이게 적용이 많이 된 템플릿이라서 jdbc templete 이라고 한다.
+* Template Method Pattern
+  * 나중에 찾아보고 공부해보자. 이게 적용이 많이 된 템플릿이라서 jdbc template 이라고 한다.
 
 <br/>
 
@@ -794,23 +796,43 @@ parameters.put("name", member.getName());
 
 <br/>
 
-<br/>
+#### 리포지토리 변경 - 설정 파일 바꾸기
+
+```java
+@Bean
+public MemberRepository memberRepository() {
+	//return new JdbcMemberRepository(dataSource);
+	return new JdbcTemplateMemberRepository(dataSource);
+}
+```
+
+* 이번에도 마찬가지로, Bean으로 등록할 Repository 객체만 바꿔주면 된다.
+* 다른 코드는 손댈 필요 없이 교체하여 사용 가능하다!
 
 <br/>
 
 ### JPA
 
-* Java Persistence API : DB 관리를 표현하는 자바 API이다. (표준 인터페이스)
-  * 객체와 ORM이라는 기술
-    * Object Relational Mapping
+#### 정의
+
+* Java Persistence API : DB 관리를 표현하는 자바 API이다. (인터페이스만 제공)
+  * 이걸 구현한 구현체로는 hibernate 등 여러 기술들이 존재함.
+    * 그 구현은 각 업체들이 하는 것!
   * 그 중 여기서는 구현체로 제공되는 hibernate 라이브러리를 사용하게 된다.
+* JPA는 객체와 ORM(Object Relational Mapping)이라는 기술이다.
+  * 매핑을 @Entity 어노테이션을 이용해서 한다.
+
+<br/>
+
+#### 특징
+
 * JPA는 기존의 반복 코드는 물론이고, 기본적인 SQL도 JPA가 직접 만들어서 실행해준다.
 * JPA를 사용하면, SQL과 데이터 중심의 설계에서 객체 중심의 설계로 패러다임을 전환을 할 수 있다.
 * JPA를 사용하면 개발 생산성을 크게 높일 수 있다.
 
 <br/>
 
-#### 사용 방법
+#### 사용 준비
 
 * 먼저 build.gradle 파일에 다음을 추가한다.
 
@@ -825,7 +847,31 @@ spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=none
 ```
 
-* auto = create로 변경하면 객체를 보고 테이블까지도 알아서 다 만들어준다.
+* auto = create로 변경하면 객체를 보고 DB 테이블까지도 알아서 다 만들어준다. 와우...
+* 물론 우린 이미 만들어진 상태라 none 이라고 한것..
+
+<br/>
+
+#### @Entity
+
+* JPA는 객체와  관계형 데이터베이스 테이블을 매핑하는 것이라고 했다.
+
+* 이 어노테이션을 사용해서 매핑을 할 수 있게 해준다.
+
+  ```java
+  @Entity
+  public class Member {
+  
+      @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+      private Long id;
+      private String name;
+  ```
+
+* 이걸 붙인 클래스는 JPA가 관리하는 Entity다 라고 표현한다.
+
+* 그리고 @id를 붙여주어 PK를 설정해준다.
+
+* IDENTITY를 전략으로 준 @GeneratedValue를 이용해서 키를 DB가 알아서 생성하도록 설정한다.
 
 <br/>
 
@@ -834,13 +880,75 @@ spring.jpa.hibernate.ddl-auto=none
 * JPA는 Entity Manager 라는 것으로 모든게 동작한다.
 * 앞서 properties랑 gradle 파일에서 선언해 준 정보들이랑, Database Connection 정보들을 알아서 잘 모아서 스프링 부트가 Entity Manager라는 것을 만들어준다.
 * 즉, 해당 객체 내부에 DataResource 정보를 다 가지고 있어서 내부적으로 DB와 통신을 다 처리를 한다.
-* **결론적으로, JPA를 쓰려면 Entity Manager를 스프링으로부터 주입 받아야 한다.**
+* **따라서, JPA를 쓰려면 Entity Manager를 스프링으로부터 주입 받으면 된다.**
 
 <br/>
 
+#### JPA 리포지토리 구현
+
+```java
+private final EntityManager em;
+
+@Autowired
+public JpaMemberRepository(EntityManager em) {
+    this.em = em;
+}
+```
+
+* 먼저 위에서 언급한 EntityManager를 스프링으로부터 주입받는다.
+* 얘가 모든 것을 다 해준다.
+
 <br/>
 
-#### 스프링 데이터 JPA
+```java
+@Override
+public Member save(Member member) {
+    em.persist(member);
+    return member;
+}
+```
+
+* DB에 member를 새로 추가하는 기능을 수행하는 save() 메소드... 놀랍다. 이 코드가 끝이다.
+* 이 안에 모든 기능이 다 들어있다고 한다. 알아서 다 해준다고...
+* em.persist(member) 해주면, JPA가 insert 쿼리 만들어서 DB에 집어넣고, setId까지도 다 해준다.
+
+<br/>
+
+```java
+@Override
+public Optional<Member> findById(Long id) {
+    Member member = em.find(Member.class, id);
+    return Optional.ofNullable(member);
+}
+```
+
+* 이번엔 findById() 이다.
+* em.find()로 조회할 타입이랑 식별자 pk 값을 넣어주면 조회가 되는 것이다.
+* return 값으로는 Optional로 감싸 반환한다.
+
+<br/>
+
+```java
+@Override
+public List<Member> findAll() {
+    return em.createQuery("select m from Member m", Member.class).getResultList();
+}
+```
+
+* jpql이라는 쿼리 언어인데, 보통 테이블 대상으로 SQL을 날린다.
+* 근데 여기서는, Entity 개체를 대상으로 쿼리를 날린다.
+* 이미 매핑이 되어있고, 저렇게 하나만 해주면.. 알아서 다 해준다는 것.
+* PK 기반이 아닌 나머지들은 JPQL이라는 것을 작성해주어야 한다.
+
+<br/>
+
+#### Tip
+
+* 데이터를 저장하거나 변경할 때는 항상 @Transactional 을 붙여주어야 한다.
+
+<br/>
+
+### 스프링 데이터 JPA
 
 <br/>
 
