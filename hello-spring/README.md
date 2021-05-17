@@ -131,7 +131,7 @@ Inflearn 강의를 보며 스프링에 입문해 공부하면서 진행한, 회�
 
 <br/>
 
-* 웹 브라우저가 localhost:8080/hello.static.html을 달라고 요청을 한다.
+* 웹 브라우저가 localhost:8080/hello-static.html을 달라고 요청을 한다.
 * 그럼 스프링은 우선적으로 컨트롤러가 있는지 찾는다.
 * 만약 매칭되는 컨트롤러가 없으면 내부에 resources - static 위치에 요청한 이름의 html 파일이 있는지 찾아 직접 그 페이지를 반환한다.
 * 이 html 페이지는 정적 컨텐츠이며, 기본 경로로 **/static** 또는 **/public**, **/resources** 등을 우선적으로 찾는다.
